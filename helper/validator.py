@@ -13,10 +13,13 @@
 __author__ = 'JHao'
 
 from re import findall
+
+import requests
 from requests import head
 from util.six import withMetaclass
 from util.singleton import Singleton
 from handler.configHandler import ConfigHandler
+from bs4 import BeautifulSoup
 
 conf = ConfigHandler()
 
@@ -83,4 +86,14 @@ def httpsTimeOutValidator(proxy):
 @ProxyValidator.addHttpValidator
 def customValidatorExample(proxy):
     """自定义validator函数，校验代理是否可用, 返回True/False"""
+    proxies = {"http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
+    try:
+        r = requests.get("https://k2s.cc", headers=HEADER, proxies=proxies, timeout=conf.verifyTimeout, verify=False)
+        soup = BeautifulSoup(r.content, 'html.parser')
+        if soup.title.text == "Keep2Share":
+            return True
+        else:
+            return False
+    except Exception as e:
+        return False
     return True
