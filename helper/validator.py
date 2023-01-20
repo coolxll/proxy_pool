@@ -89,8 +89,7 @@ def customValidatorExample(proxy):
     proxies = {"http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
     try:
         r = requests.get("https://k2s.cc", headers=HEADER, proxies=proxies, timeout=conf.verifyTimeout, verify=False)
-        soup = BeautifulSoup(r.content, 'html.parser')
-        if soup.title.text == "Keep2Share":
+        if r.status_code == 200:
             return True
         else:
             return False
