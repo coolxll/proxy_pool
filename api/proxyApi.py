@@ -16,6 +16,7 @@
 """
 __author__ = 'JHao'
 
+import os
 import platform
 from werkzeug.wrappers import Response
 from flask import Flask, jsonify, request
@@ -82,6 +83,14 @@ def getAll():
     proxies = proxy_handler.getAll(https)
     return jsonify([_.to_dict for _ in proxies])
 
+@app.route('/export/')
+def exportList():
+    https = request.args.get("type", "").lower() == 'https'
+    proxies = proxy_handler.getAll(https)
+    outputStr = ''
+    for proxy in proxies:
+        outputStr += proxy.proxy + os.linesep
+    return outputStr
 
 @app.route('/delete/', methods=['GET'])
 def delete():

@@ -12,9 +12,12 @@
 """
 __author__ = 'JHao'
 
+import logging
+import uuid
 from re import findall
 
 import requests
+import tqdm as tqdm
 from requests import head
 from util.six import withMetaclass
 from util.singleton import Singleton
@@ -68,6 +71,7 @@ def httpTimeOutValidator(proxy):
         r = head(conf.httpUrl, headers=HEADER, proxies=proxies, timeout=conf.verifyTimeout)
         return True if r.status_code == 200 else False
     except Exception as e:
+        # logging.exception("Proxy Validator Exception:" + proxy)
         return False
 
 
@@ -75,24 +79,86 @@ def httpTimeOutValidator(proxy):
 def httpsTimeOutValidator(proxy):
     """https检测超时"""
 
-    proxies = {"http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
+    proxies = {"http": "http://{proxy}".format(proxy=proxy), "https": "http://{proxy}".format(proxy=proxy)}
     try:
         r = head(conf.httpsUrl, headers=HEADER, proxies=proxies, timeout=conf.verifyTimeout, verify=False)
         return True if r.status_code == 200 else False
     except Exception as e:
+        # logging.exception("Proxy Validator Exception:" + proxy)
         return False
 
 
 @ProxyValidator.addHttpValidator
 def customValidatorExample(proxy):
     """自定义validator函数，校验代理是否可用, 返回True/False"""
-    proxies = {"http": "http://{proxy}".format(proxy=proxy), "https": "https://{proxy}".format(proxy=proxy)}
+    proxies = {"http": "http://{proxy}".format(proxy=proxy), "https": "http://{proxy}".format(proxy=proxy)}
     try:
-        r = requests.get("https://k2s.cc", headers=HEADER, proxies=proxies, timeout=conf.verifyTimeout, verify=False)
+        r = requests.get("https://www.baidu.com", headers=HEADER, proxies=proxies, timeout=conf.verifyTimeout, verify=False)
         if r.status_code == 200:
             return True
         else:
+            logging.info("{} Response code not 200")
             return False
     except Exception as e:
+        logging.exception("Proxy Validator Exception:" + proxy)
         return False
     return True
+
+@ProxyValidator.addHttpValidator
+def customSpeedTestValidator(proxy):
+    try:
+        file_size = 1048576
+        proxies = {
+            'http': f'http://{proxy}',
+            'https': f'http://{proxy}'
+        }
+        Sbar = "{desc}: {percentage:3.0f}%|{bar}|" \
+               "{n_fmt}/{total_fmt} {rate_fmt}{postfix}"
+        pbar = tqdm(
+            total=file_size,
+            initial=0,
+            dynamic_ncols=True,
+            bar_format=Sbar,
+            unit='B',
+            unit_scale=True,
+            unit_divisor=1024,
+            miniters=1,
+            position=1,
+            desc=f'Thread {proxy}',
+            leave=False
+        )
+        req = requests.get(
+            "http://speedtest-sgp1.digitalocean.com/10mb.test",
+            headers={"Range": "bytes=%s-%s" % (0, file_size)},
+            stream=True,
+            proxies=proxies,
+            timeout=5
+        )
+        with(open(f'{uuid.uuid1()}', 'ab')) as f:
+            for chunk in req.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+                    pbar.update(1024)
+        pbar.close()
+        return True
+    except requests.exceptions.ProxyError:
+        print(f"\nCould not connect to {proxy}")
+        return False
+    except requests.exceptions.ConnectionError:
+        print(f"\nCould not connect to {proxy}")
+        return False
+    except IndexError:
+        print(f'\nYou must provide a testing IP:PORT proxy')
+        return False
+    except requests.exceptions.ConnectTimeout:
+        print(f"\nConnect Timeout for {proxy}")
+        return False
+    except requests.exceptions.ReadTimeout:
+        print(f"\nRead Timeout for {proxy}")
+        return False
+    except RuntimeError:
+        print(f"\nSet changed size during iteration. {proxy}")
+        return False
+    except KeyboardInterrupt:
+        print(f"\nThread no:. Exited by User.")
+        exit()
