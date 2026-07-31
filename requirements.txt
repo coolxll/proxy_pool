@@ -1,9 +1,8 @@
-APScheduler==3.2.0
-werkzeug==0.15.5
-Flask
-requests==2.20.0
-click==7.0
-gunicorn==19.9.0
-lxml
-redis
-itsdangerous==2.0.1
+APScheduler>=3.10.4,<4.0
+click>=8.1.8,<9.0
+Flask>=3.1.0,<4.0
+gunicorn>=23.0.0,<24.0
+lxml>=5.4.0,<7.0
+redis>=5.2.0,<6.0
+requests>=2.32.4,<3.0
+setuptools>=83.0.0

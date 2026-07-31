@@ -1,24 +1,25 @@
-FROM python:3.6-alpine
+FROM python:3.11-slim
 
-MAINTAINER jhao104 <j_hao104@163.com>
+LABEL maintainer="jhao104 <j_hao104@163.com>"
 
 WORKDIR /app
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    TZ=Asia/Shanghai
+
 COPY ./requirements.txt .
 
-# apk repository
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
-
-# timezone
-RUN apk add -U tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && apk del tzdata
-
-# runtime environment
-RUN apk add musl-dev gcc libxml2-dev libxslt-dev && \
-    pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ && \
-    apk del gcc musl-dev
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends bash tini tzdata && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip install --no-cache-dir --upgrade pip setuptools && \
+    pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
 EXPOSE 5010
 
-ENTRYPOINT [ "sh", "start.sh" ]
+ENTRYPOINT ["tini", "--"]
+CMD ["bash", "proxy_pool.sh", "start", "--fg"]

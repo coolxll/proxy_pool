@@ -1,14 +1,42 @@
-version: '2'
 services:
   proxy_pool:
-    build: .
+    build:
+      context: .
     container_name: proxy_pool
     ports:
-      - "5010:5010"
-    links:
-      - proxy_redis
+      - "${PROXY_POOL_BIND:-127.0.0.1}:${PROXY_POOL_PORT:-5010}:5010"
     environment:
       DB_CONN: "redis://@proxy_redis:6379/0"
+      HOST: "0.0.0.0"
+      PORT: "5010"
+      HTTP_URL: "${HTTP_URL:-http://httpbin.org}"
+      HTTPS_URL: "${HTTPS_URL:-https://www.qq.com}"
+      VALID_STATUS_CODES: "${VALID_STATUS_CODES:-200}"
+      PROXY_REGION: "${PROXY_REGION:-false}"
+      TIMEZONE: "${TIMEZONE:-Asia/Shanghai}"
+    depends_on:
+      proxy_redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://127.0.0.1:5010/count/', timeout=3).raise_for_status()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
   proxy_redis:
-    image: "redis"
+    image: "redis:7-alpine"
     container_name: proxy_redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - proxy_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  proxy_redis_data:

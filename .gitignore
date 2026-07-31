@@ -1,4 +1,16 @@
 .idea/
-docs/_build
+site/
 *.pyc
+*.pyc.*
+__pycache__/
 *.log
+.tox
+.claude/
+docs/ideas/
+docs/specs/
+.coverage
+.pytest_cache/
+htmlcov/
+venv/
+.venv/
+proxy_pool.pid

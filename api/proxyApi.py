@@ -16,7 +16,6 @@
 """
 __author__ = 'JHao'
 
-import os
 import platform
 from werkzeug.wrappers import Response
 from flask import Flask, jsonify, request
@@ -47,6 +46,7 @@ api_list = [
     {"url": "/pop", "params": "", "desc": "get and delete a proxy"},
     {"url": "/delete", "params": "proxy: 'e.g. 127.0.0.1:8080'", "desc": "delete an unable proxy"},
     {"url": "/all", "params": "type: ''https'|''", "desc": "get all proxy from proxy pool"},
+    {"url": "/export", "params": "type: ''https'|''", "desc": "export proxies as plain text"},
     {"url": "/count", "params": "", "desc": "return proxy count"}
     # 'refresh': 'refresh proxy pool',
 ]
@@ -87,10 +87,10 @@ def getAll():
 def exportList():
     https = request.args.get("type", "").lower() == 'https'
     proxies = proxy_handler.getAll(https)
-    outputStr = ''
-    for proxy in proxies:
-        outputStr += proxy.proxy + os.linesep
-    return outputStr
+    body = "\n".join(proxy.proxy for proxy in proxies)
+    if body:
+        body += "\n"
+    return Response(body, content_type="text/plain; charset=utf-8")
 
 @app.route('/delete/', methods=['GET'])
 def delete():

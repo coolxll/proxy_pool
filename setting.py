@@ -28,7 +28,7 @@ BANNER = r"""
 VERSION = "2.4.0"
 
 # ############### server config ###############
-HOST = "0.0.0.0"
+HOST = "127.0.0.1"
 
 PORT = 5010
 
@@ -37,25 +37,16 @@ PORT = 5010
 # example:
 #      Redis: redis://:password@ip:port/db
 #      Ssdb:  ssdb://:password@ip:port
-DB_CONN = 'redis://192.168.3.66:6379/0'
+DB_CONN = 'redis://@127.0.0.1:6379/0'
 
 # proxy table name
 TABLE_NAME = 'use_proxy'
 
 
 # ###### config the proxy fetch function ######
-PROXY_FETCHER = [
-    "freeProxy01",
-    "freeProxy02",
-    "freeProxy03",
-    "freeProxy04",
-    "freeProxy05",
-    "freeProxy06",
-    "freeProxy07",
-    "freeProxy08",
-    "freeProxy09",
-    "freeProxy10"
-]
+# 自动扫描 fetcher/sources/ 目录，加载所有 enabled=True 的 fetcher
+# 如需临时禁用某个 fetcher，在下方黑名单中添加类名（不改源文件）
+PROXY_FETCHER_EXCLUDE = []
 
 # ############# proxy validator #################
 # 代理验证目标网站
@@ -65,6 +56,9 @@ HTTPS_URL = "https://www.qq.com"
 
 # 代理验证时超时时间
 VERIFY_TIMEOUT = 10
+
+# Target response codes that count as a successful proxy check.
+VALID_STATUS_CODES = [200]
 
 # 近PROXY_CHECK_COUNT次校验中允许的最大失败次数,超过则剔除代理
 MAX_FAIL_COUNT = 0
