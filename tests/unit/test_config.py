@@ -23,7 +23,8 @@ def clean_env():
     """测试前后清理可能设置的环境变量"""
     env_keys = ["DB_CONN", "PORT", "HOST", "TABLE_NAME", "HTTP_URL",
                 "HTTPS_URL", "VERIFY_TIMEOUT", "MAX_FAIL_COUNT",
-                "VALID_STATUS_CODES", "POOL_SIZE_MIN", "PROXY_REGION", "TIMEZONE"]
+                "VALID_STATUS_CODES", "VERIFY_PROXY_IP", "POOL_SIZE_MIN",
+                "PROXY_REGION", "TIMEZONE"]
     saved = {k: os.environ.get(k) for k in env_keys}
     for k in env_keys:
         os.environ.pop(k, None)
@@ -69,6 +70,9 @@ class TestConfigHandlerDefaults:
     def test_valid_status_codes_default(self, conf):
         assert conf.validStatusCodes == tuple(setting.VALID_STATUS_CODES)
 
+    def test_verify_proxy_ip_default(self, conf):
+        assert conf.verifyProxyIp is setting.VERIFY_PROXY_IP
+
     def test_pool_size_min_default(self, conf):
         assert conf.poolSizeMin == setting.POOL_SIZE_MIN
 
@@ -105,6 +109,11 @@ class TestConfigHandlerEnvOverride:
         os.environ["VALID_STATUS_CODES"] = "200, 206,403"
         conf = ConfigHandler()
         assert conf.validStatusCodes == (200, 206, 403)
+
+    def test_verify_proxy_ip_false_override(self):
+        os.environ["VERIFY_PROXY_IP"] = "false"
+        conf = ConfigHandler()
+        assert conf.verifyProxyIp is False
 
     def test_proxy_region_false_override(self):
         os.environ["PROXY_REGION"] = "false"

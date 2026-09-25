@@ -9,9 +9,10 @@ services:
       DB_CONN: "redis://@proxy_redis:6379/0"
       HOST: "0.0.0.0"
       PORT: "5010"
-      HTTP_URL: "${HTTP_URL:-http://httpbin.org}"
-      HTTPS_URL: "${HTTPS_URL:-https://www.qq.com}"
+      HTTP_URL: "${HTTP_URL:-http://httpbin.org/ip}"
+      HTTPS_URL: "${HTTPS_URL:-https://httpbin.org/ip}"
       VALID_STATUS_CODES: "${VALID_STATUS_CODES:-200}"
+      VERIFY_PROXY_IP: "${VERIFY_PROXY_IP:-true}"
       PROXY_REGION: "${PROXY_REGION:-false}"
       TIMEZONE: "${TIMEZONE:-Asia/Shanghai}"
     depends_on:

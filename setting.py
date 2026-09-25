@@ -50,15 +50,20 @@ PROXY_FETCHER_EXCLUDE = []
 
 # ############# proxy validator #################
 # 代理验证目标网站
-HTTP_URL = "http://httpbin.org"
+HTTP_URL = "http://httpbin.org/ip"
 
-HTTPS_URL = "https://www.qq.com"
+HTTPS_URL = "https://httpbin.org/ip"
 
 # 代理验证时超时时间
 VERIFY_TIMEOUT = 10
 
 # Target response codes that count as a successful proxy check.
 VALID_STATUS_CODES = [200]
+
+# Require the validation endpoint to return a public exit IP that differs from
+# this host's direct exit IP. Disable only when HTTP_URL / HTTPS_URL are normal
+# business pages rather than IP echo endpoints.
+VERIFY_PROXY_IP = True
 
 # 近PROXY_CHECK_COUNT次校验中允许的最大失败次数,超过则剔除代理
 MAX_FAIL_COUNT = 0

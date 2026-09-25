@@ -64,6 +64,13 @@ class ConfigHandler(withMetaclass(Singleton)):
             return tuple(setting.VALID_STATUS_CODES)
         return tuple(int(code.strip()) for code in raw.split(",") if code.strip())
 
+    @property
+    def verifyProxyIp(self):
+        value = os.getenv("VERIFY_PROXY_IP", setting.VERIFY_PROXY_IP)
+        if isinstance(value, bool):
+            return value
+        return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
     # @LazyProperty
     # def proxyCheckCount(self):
     #     return int(os.getenv("PROXY_CHECK_COUNT", setting.PROXY_CHECK_COUNT))

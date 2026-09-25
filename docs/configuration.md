@@ -61,11 +61,11 @@ python proxyPool.py fetcher
 
 ### `PROXY_FETCHER_EXCLUDE`
 
-代理源黑名单。列表中的类名对应的代理源不会被加载，即使 `enabled=True`。适用于临时禁用某个代理源而不修改其源文件。
+代理源黑名单。列表中的代理源 `name`（同时兼容旧的类名）不会被加载，即使 `enabled=True`。适用于临时禁用某个代理源而不修改其源文件。
 
 ```python
 PROXY_FETCHER_EXCLUDE = [
-    # "BinglxFetcher",   # 临时禁用冰凌代理
+    # "freevpnnode",
 ]
 ```
 
@@ -75,15 +75,15 @@ PROXY_FETCHER_EXCLUDE = [
 
 ### `HTTP_URL`
 
-用于检验代理是否可用的地址。
+用于检验代理是否可用的 IP 回显地址。
 
-- 默认值：`"http://httpbin.org"`
+- 默认值：`"http://httpbin.org/ip"`
 
 ### `HTTPS_URL`
 
-用于检验代理是否支持 HTTPS 的地址。
+用于检验代理是否支持 HTTPS 的 IP 回显地址。
 
-- 默认值：`"https://www.qq.com"`
+- 默认值：`"https://httpbin.org/ip"`
 
 ### `VERIFY_TIMEOUT`
 
@@ -93,12 +93,21 @@ PROXY_FETCHER_EXCLUDE = [
 
 ### `VALID_STATUS_CODES`
 
-目标站点返回这些 HTTP 状态码时视为代理可用。
+目标站点返回这些 HTTP 状态码后，校验器才会继续检查响应正文和出口 IP；状态码本身不能证明代理可用。
 
 - 默认值：`[200]`
 - 环境变量格式：逗号分隔，例如 `VALID_STATUS_CODES=200,206,302,403`
 
-针对会对匿名访问返回 `403` 的站点，可以将 `403` 加入列表，而无需修改校验器源码。
+### `VERIFY_PROXY_IP`
+
+是否要求校验响应包含合法公网 IPv4，并且代理出口 IP 与本机直连出口不同。
+
+- 默认值：`True`
+- 环境变量：`VERIFY_PROXY_IP=true|false`
+
+启用时，`HTTP_URL` 和 `HTTPS_URL` 必须是 IP 回显接口。无法获取直连出口、响应为空、无法解析公网 IP，或者出口 IP 没有变化时，代理均判定为不可用。直连出口会缓存 5 分钟，避免对每个候选代理重复请求。
+
+仅当校验地址必须使用普通业务页面时才建议关闭；关闭后仍要求状态码符合配置且响应正文非空。
 
 ### `MAX_FAIL_COUNT`
 

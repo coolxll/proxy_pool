@@ -29,8 +29,9 @@ graph LR
 ```
 
 - `preValidator` 校验通过的代理才会进入可用性校验
-- `httpValidator` 校验通过后认为代理可用，更新入代理池
-- `httpsValidator` 校验通过后视为代理支持 HTTPS，更新代理的 `https` 属性为 `True`
+- 内置 `httpValidator` 使用 GET 获取真实响应；默认要求响应包含与直连出口不同的公网 IP
+- `httpValidator` 全部通过后才认为代理可用并写入代理池
+- 内置 `httpsValidator` 以相同方式确认 HTTPS CONNECT、TLS 证书和出口 IP，成功后将 `https` 标记为 `True`
 
 ## 扩展校验
 

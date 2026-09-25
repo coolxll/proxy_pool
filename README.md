@@ -80,6 +80,11 @@ DB_CONN = 'redis://@127.0.0.1:6379/0'
 # 可接受的目标站点状态码，也可通过 VALID_STATUS_CODES=200,403 覆盖
 VALID_STATUS_CODES = [200]
 
+# 默认还会解析 IP 回显响应，并要求代理出口 IP 与本机直连出口不同
+HTTP_URL = "http://httpbin.org/ip"
+HTTPS_URL = "https://httpbin.org/ip"
+VERIFY_PROXY_IP = True
+
 
 # 配置代理源（可选）
 # 默认自动扫描 fetcher/sources/ 目录下所有 enabled=True 的代理源
