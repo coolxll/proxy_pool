@@ -41,9 +41,9 @@ class ConfigHandler(withMetaclass(Singleton)):
         return os.getenv("TABLE_NAME", setting.TABLE_NAME)
 
     @property
-    def fetchers(self):
+    def fetcherExclude(self):
         reload_six(setting)
-        return setting.PROXY_FETCHER
+        return getattr(setting, 'PROXY_FETCHER_EXCLUDE', [])
 
     @LazyProperty
     def httpUrl(self):
@@ -56,6 +56,13 @@ class ConfigHandler(withMetaclass(Singleton)):
     @LazyProperty
     def verifyTimeout(self):
         return int(os.getenv("VERIFY_TIMEOUT", setting.VERIFY_TIMEOUT))
+
+    @property
+    def validStatusCodes(self):
+        raw = os.getenv("VALID_STATUS_CODES")
+        if raw is None:
+            return tuple(setting.VALID_STATUS_CODES)
+        return tuple(int(code.strip()) for code in raw.split(",") if code.strip())
 
     # @LazyProperty
     # def proxyCheckCount(self):
@@ -75,9 +82,11 @@ class ConfigHandler(withMetaclass(Singleton)):
 
     @LazyProperty
     def proxyRegion(self):
-        return bool(os.getenv("PROXY_REGION", setting.PROXY_REGION))
+        value = os.getenv("PROXY_REGION", setting.PROXY_REGION)
+        if isinstance(value, bool):
+            return value
+        return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
     @LazyProperty
     def timezone(self):
         return os.getenv("TIMEZONE", setting.TIMEZONE)
-

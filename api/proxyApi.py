@@ -46,6 +46,7 @@ api_list = [
     {"url": "/pop", "params": "", "desc": "get and delete a proxy"},
     {"url": "/delete", "params": "proxy: 'e.g. 127.0.0.1:8080'", "desc": "delete an unable proxy"},
     {"url": "/all", "params": "type: ''https'|''", "desc": "get all proxy from proxy pool"},
+    {"url": "/export", "params": "type: ''https'|''", "desc": "export proxies as plain text"},
     {"url": "/count", "params": "", "desc": "return proxy count"}
     # 'refresh': 'refresh proxy pool',
 ]
@@ -82,6 +83,14 @@ def getAll():
     proxies = proxy_handler.getAll(https)
     return jsonify([_.to_dict for _ in proxies])
 
+@app.route('/export/')
+def exportList():
+    https = request.args.get("type", "").lower() == 'https'
+    proxies = proxy_handler.getAll(https)
+    body = "\n".join(proxy.proxy for proxy in proxies)
+    if body:
+        body += "\n"
+    return Response(body, content_type="text/plain; charset=utf-8")
 
 @app.route('/delete/', methods=['GET'])
 def delete():

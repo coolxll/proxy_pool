@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+.pytest_cache
+.tox
+__pycache__
+*.pyc
+*.log
+htmlcov
+site
+venv
+.venv
