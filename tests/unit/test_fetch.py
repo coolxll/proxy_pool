@@ -91,14 +91,24 @@ class TestDiscoverFetchers:
             assert f.enabled is True
 
     def test_filters_exclude_list(self):
-        """exclude_list 中的被排除"""
+        """exclude_list 支持按稳定的 fetcher name 排除。"""
         all_fetchers = _discover_fetchers([])
         if not all_fetchers:
             pytest.skip("No fetchers available")
-        first_name = all_fetchers[0].__name__
+        first_name = all_fetchers[0].name
         filtered = _discover_fetchers([first_name])
-        filtered_names = [f.__name__ for f in filtered]
+        filtered_names = [f.name for f in filtered]
         assert first_name not in filtered_names
+
+    def test_filters_legacy_class_name(self):
+        """为已有配置保留按类名排除的兼容性。"""
+        all_fetchers = _discover_fetchers([])
+        if not all_fetchers:
+            pytest.skip("No fetchers available")
+        first_class_name = all_fetchers[0].__name__
+        filtered = _discover_fetchers([first_class_name])
+        filtered_class_names = [f.__name__ for f in filtered]
+        assert first_class_name not in filtered_class_names
 
     def test_returns_sorted_by_name(self):
         """返回结果按 name 排序"""

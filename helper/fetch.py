@@ -80,6 +80,7 @@ def _discover_fetchers(exclude_list):
                     and attr is not BaseFetcher
                     and attr.name
                     and attr.enabled
+                    and attr.name not in exclude_list
                     and attr.__name__ not in exclude_list):
                 fetcher_classes.append(attr)
 
@@ -140,7 +141,7 @@ class Fetcher(object):
             thread_list.append(_ThreadFetcher(fetcher_class, proxy_dict))
 
         for thread in thread_list:
-            thread.setDaemon(True)
+            thread.daemon = True
             thread.start()
 
         for thread in thread_list:

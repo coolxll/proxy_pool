@@ -31,12 +31,9 @@ PORT = 5010                    # 监听端口
 # 数据库
 DB_CONN = 'redis://:pwdstring@127.0.0.1:6379/0'
 
-# 代理采集方法
-PROXY_FETCHER = [
-    "freeProxy01",      # 所有 fetch 方法位于 fetcher/proxyFetcher.py
-    "freeProxy02",
-    # ....
-]
+# 可选：按代理源的 name 临时禁用抓取器
+# 默认自动加载 fetcher/sources/ 下所有 enabled=True 的代理源
+PROXY_FETCHER_EXCLUDE = ["freevpnnode"]
 ```
 
 更多配置请参考 [配置参考](configuration.md)。

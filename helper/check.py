@@ -151,7 +151,7 @@ def Checker(tp, queue):
         thread_list.append(_ThreadChecker(tp, queue, "thread_%s" % str(index).zfill(2)))
 
     for thread in thread_list:
-        thread.setDaemon(True)
+        thread.daemon = True
         thread.start()
 
     for thread in thread_list:
